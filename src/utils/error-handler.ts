@@ -13,6 +13,10 @@ const createErrorResponse = (
 const wrapToolHandler = (
   fn: () => Promise<CallToolResult>,
 ): Promise<CallToolResult> =>
-  fn().catch((err: Error) => createErrorResponse(err.message, err.stack));
+  fn().catch((err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return createErrorResponse(message, stack);
+  });
 
 export { createErrorResponse, wrapToolHandler };
