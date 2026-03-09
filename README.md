@@ -1,15 +1,15 @@
-# @builderhub/mcp-x-twitter
+# @m8lab/mcp-x-twitter
 
 MCP server for X (Twitter) — post tweets, upload media, and manage interactions via Claude Code or Claude Desktop.
 
 [![CI](https://github.com/lmtNoLimit/mcp-x-twitter/actions/workflows/ci.yml/badge.svg)](https://github.com/lmtNoLimit/mcp-x-twitter/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/@builderhub%2Fmcp-x-twitter.svg)](https://www.npmjs.com/package/@builderhub/mcp-x-twitter)
+[![npm version](https://badge.fury.io/js/@m8lab%2Fmcp-x-twitter.svg)](https://www.npmjs.com/package/@m8lab/mcp-x-twitter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Install
 
 ```bash
-npx @builderhub/mcp-x-twitter
+npx @m8lab/mcp-x-twitter
 ```
 
 ## Claude Code Configuration
@@ -21,7 +21,7 @@ Add to your `.claude/mcp.json` (or run `claude mcp add`):
   "mcpServers": {
     "x-twitter": {
       "command": "npx",
-      "args": ["-y", "@builderhub/mcp-x-twitter"],
+      "args": ["-y", "@m8lab/mcp-x-twitter"],
       "env": {
         "X_API_KEY": "your_api_key",
         "X_API_SECRET": "your_api_secret",
@@ -42,7 +42,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
   "mcpServers": {
     "x-twitter": {
       "command": "npx",
-      "args": ["-y", "@builderhub/mcp-x-twitter"],
+      "args": ["-y", "@m8lab/mcp-x-twitter"],
       "env": {
         "X_API_KEY": "your_api_key",
         "X_API_SECRET": "your_api_secret",
