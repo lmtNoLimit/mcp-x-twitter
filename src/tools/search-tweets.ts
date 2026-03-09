@@ -1,19 +1,17 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { TwitterApi } from "twitter-api-v2";
+import type { XClients } from "../client.js";
 import { wrapToolHandler } from "../utils/error-handler.js";
 
-const register = (server: McpServer, client: TwitterApi) => {
+const register = (server: McpServer, clients: XClients) => {
   server.tool(
     "search_tweets",
-    "Search recent tweets (last 7 days) using a query string. NOTE: This endpoint requires Basic or Pro tier X API access — not available on the free tier.",
+    "Search recent tweets (last 7 days) using a query string. NOTE: Requires Basic or Pro tier X API access.",
     {
       query: z
         .string()
         .min(1)
-        .describe(
-          "Search query. Supports operators like -is:retweet, lang:en, from:user, #hashtag",
-        ),
+        .describe("Search query. Supports operators like -is:retweet, lang:en, from:user, #hashtag"),
       max_results: z
         .number()
         .int()
@@ -28,7 +26,7 @@ const register = (server: McpServer, client: TwitterApi) => {
     },
     async (args) =>
       wrapToolHandler(async () => {
-        const result = await client.v2.search(args.query, {
+        const result = await clients.readonly.v2.search(args.query, {
           max_results: args.max_results,
           next_token: args.next_token,
           expansions: ["author_id"],
@@ -40,11 +38,7 @@ const register = (server: McpServer, client: TwitterApi) => {
             {
               type: "text",
               text: JSON.stringify(
-                {
-                  data: result.data.data,
-                  meta: result.data.meta,
-                  includes: result.data.includes,
-                },
+                { data: result.data.data, meta: result.data.meta, includes: result.data.includes },
                 null,
                 2,
               ),

@@ -13,8 +13,8 @@ const main = async () => {
     name: "mcp-x-twitter",
     version: "1.0.0",
   });
-  const client = createClient();
-  registerAllTools(server, client);
+  const clients = createClient();
+  registerAllTools(server, clients);
   const transport = new StdioServerTransport();
   await server.connect(transport);
   logger.info("MCP X/Twitter server running on stdio");

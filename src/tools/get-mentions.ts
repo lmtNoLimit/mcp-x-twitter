@@ -1,12 +1,13 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { TwitterApi } from "twitter-api-v2";
+import type { XClients } from "../client.js";
+import { getWriteClient } from "../client.js";
 import { wrapToolHandler } from "../utils/error-handler.js";
 
-const register = (server: McpServer, client: TwitterApi) => {
+const register = (server: McpServer, clients: XClients) => {
   server.tool(
     "get_mentions",
-    "Retrieve recent tweets that mention the authenticated user. Returns up to 5 most recent mentions by default.",
+    "Retrieve recent tweets that mention the authenticated user. Requires OAuth 2.0 user auth.",
     {
       max_results: z
         .number()
@@ -18,7 +19,7 @@ const register = (server: McpServer, client: TwitterApi) => {
       since_id: z
         .string()
         .optional()
-        .describe("Return only tweets newer than this tweet ID (for polling)"),
+        .describe("Return only tweets newer than this tweet ID"),
       pagination_token: z
         .string()
         .optional()
@@ -26,9 +27,10 @@ const register = (server: McpServer, client: TwitterApi) => {
     },
     async (args) =>
       wrapToolHandler(async () => {
-        const me = await client.v2.me();
+        const writeClient = await getWriteClient(clients);
+        const me = await writeClient.v2.me();
         const userId = me.data.id;
-        const result = await client.v2.userMentionTimeline(userId, {
+        const result = await writeClient.v2.userMentionTimeline(userId, {
           max_results: args.max_results,
           since_id: args.since_id,
           pagination_token: args.pagination_token,
@@ -41,11 +43,7 @@ const register = (server: McpServer, client: TwitterApi) => {
             {
               type: "text",
               text: JSON.stringify(
-                {
-                  data: result.data.data,
-                  meta: result.data.meta,
-                  includes: result.data.includes,
-                },
+                { data: result.data.data, meta: result.data.meta, includes: result.data.includes },
                 null,
                 2,
               ),

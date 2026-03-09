@@ -1,7 +1,6 @@
-export interface TwitterCredentials {
-  apiKey: string;
-  apiSecret: string;
-  accessToken: string;
-  accessSecret: string;
-  bearerToken?: string;
+export interface XCredentials {
+  bearerToken: string;
+  clientId?: string;
+  clientSecret?: string;
+  refreshToken?: string;
 }
