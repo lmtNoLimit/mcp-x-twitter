@@ -1,0 +1,31 @@
+{
+  "name": "@builderhub/mcp-x-twitter",
+  "version": "1.0.0",
+  "description": "MCP server for X (Twitter) — post tweets, upload media, manage interactions via Claude Code/Desktop",
+  "type": "module",
+  "bin": { "mcp-x-twitter": "./dist/index.js" },
+  "main": "./dist/index.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": { "access": "public" },
+  "keywords": ["mcp", "x", "twitter", "claude", "ai", "model-context-protocol"],
+  "author": "BuilderHub",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "twitter-api-v2": "^1.18.0",
+    "zod": "^3.23.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": { "node": ">=18.0.0" }
+}
