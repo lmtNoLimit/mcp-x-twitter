@@ -1,12 +1,15 @@
 import { TwitterApi } from "twitter-api-v2";
 import { createLogger } from "./utils/logger.js";
+import { createXquikClientFromEnv, type XquikClient } from "./xquik-client.js";
 
 const logger = createLogger("x-twitter");
 
 export interface XClients {
-  /** Read-only client (Bearer Token — app-only auth) */
-  readonly: TwitterApi;
-  /** Read-write client (OAuth 2.0 user context) — null if no refresh token */
+  /** Read-only client (Bearer Token - app-only auth) */
+  readonly: TwitterApi | null;
+  /** Optional Xquik REST API client for read tools */
+  xquik: XquikClient | null;
+  /** Read-write client (OAuth 2.0 user context) - null if no refresh token */
   readwrite: TwitterApi | null;
 }
 
@@ -18,15 +21,21 @@ const createClient = (): XClients => {
     X_REFRESH_TOKEN,
   } = process.env;
 
-  if (!X_BEARER_TOKEN) {
+  const xquik = createXquikClientFromEnv();
+
+  if (!X_BEARER_TOKEN && !xquik) {
     throw new Error(
-      "Missing X_BEARER_TOKEN. Get it from developer.x.com → App → Keys and Tokens.",
+      "Missing X_BEARER_TOKEN or XQUIK_API_KEY. Configure one read provider.",
     );
   }
 
-  // Read-only client using Bearer Token (app-only)
-  const readonly = new TwitterApi(X_BEARER_TOKEN);
-  logger.info("X/Twitter read-only client initialized (Bearer Token)");
+  const readonly = X_BEARER_TOKEN ? new TwitterApi(X_BEARER_TOKEN) : null;
+  if (readonly) {
+    logger.info("X/Twitter read-only client initialized (Bearer Token)");
+  }
+  if (xquik) {
+    logger.info("Xquik read client initialized");
+  }
 
   // Read-write client using OAuth 2.0 user context (if refresh token available)
   let readwrite: TwitterApi | null = null;
@@ -38,11 +47,11 @@ const createClient = (): XClients => {
     logger.info("X/Twitter read-write client initialized (OAuth 2.0)");
   } else {
     logger.warn(
-      "No X_CLIENT_ID or X_REFRESH_TOKEN — write tools (post, like, retweet) will not work. Run: npm run get-token",
+      "No X_CLIENT_ID or X_REFRESH_TOKEN - write tools (post, like, retweet) will not work. Run: npm run get-token",
     );
   }
 
-  return { readonly, readwrite };
+  return { readonly, xquik, readwrite };
 };
 
 /**

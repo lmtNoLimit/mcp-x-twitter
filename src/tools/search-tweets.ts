@@ -2,11 +2,12 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { XClients } from "../client.js";
 import { wrapToolHandler } from "../utils/error-handler.js";
+import { normalizeXquikSearchResponse } from "../xquik-client.js";
 
 const register = (server: McpServer, clients: XClients) => {
   server.tool(
     "search_tweets",
-    "Search recent tweets (last 7 days) using a query string. NOTE: Requires Basic or Pro tier X API access.",
+    "Search recent tweets using Xquik when configured, or X API recent search otherwise.",
     {
       query: z
         .string()
@@ -26,6 +27,28 @@ const register = (server: McpServer, clients: XClients) => {
     },
     async (args) =>
       wrapToolHandler(async () => {
+        if (clients.xquik) {
+          const result = await clients.xquik.searchTweets({
+            query: args.query,
+            limit: args.max_results,
+            cursor: args.next_token,
+          });
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(
+                  normalizeXquikSearchResponse(result),
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
+        }
+        if (!clients.readonly) {
+          throw new Error("search_tweets requires X_BEARER_TOKEN or XQUIK_API_KEY.");
+        }
         const result = await clients.readonly.v2.search(args.query, {
           max_results: args.max_results,
           next_token: args.next_token,
